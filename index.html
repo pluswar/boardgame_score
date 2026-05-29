@@ -2,155 +2,245 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>보드게임 모바일 평점 계산기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보드게임 취향 기록장</title>
   <style>
+    * { box-sizing: border-box; }
+
     :root {
-      --bg: #f6f1e8;
-      --paper: #fffaf0;
+      --bg: #f6f2ea;
+      --panel: #fffaf0;
+      --panel-2: #fff3dc;
       --card: #ffffff;
-      --ink: #201a16;
-      --muted: #75685f;
-      --line: #eadfce;
-      --accent: #e85d3f;
-      --accent-dark: #bf3f28;
-      --chip: #2f6f5e;
-      --shadow: 0 10px 24px rgba(62, 42, 22, 0.12);
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    }
-
-    html {
-      scroll-behavior: smooth;
+      --card-hover: #fff8e8;
+      --input: #ffffff;
+      --text: #25212c;
+      --soft: #4f4a5d;
+      --muted: #716a7e;
+      --line: rgba(37, 33, 44, 0.16);
+      --line-soft: rgba(37, 33, 44, 0.10);
+      --red: #ff5b5f;
+      --blue: #2d9cdb;
+      --yellow: #ffd166;
+      --green: #35b66f;
+      --purple: #8b5cf6;
+      --red-soft: #8e2b30;
+      --shadow: rgba(70, 45, 20, 0.16);
     }
 
     body {
       margin: 0;
-      background:
-        radial-gradient(circle at top left, rgba(232, 93, 63, 0.14), transparent 32%),
-        linear-gradient(180deg, #fff8ed 0%, var(--bg) 42%, #efe3d1 100%);
-      color: var(--ink);
       min-height: 100vh;
-      padding: 14px 14px calc(92px + env(safe-area-inset-bottom));
+      padding: 34px 18px 108px;
+      color: var(--text);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 91, 95, 0.18), transparent 28%),
+        radial-gradient(circle at 88% 10%, rgba(45, 156, 219, 0.16), transparent 26%),
+        radial-gradient(circle at 50% 96%, rgba(255, 209, 102, 0.24), transparent 30%),
+        linear-gradient(135deg, #fff7e8 0%, #f4efe7 52%, #eaf4ff 100%);
     }
 
-    .app {
-      width: 100%;
-      max-width: 520px;
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(37,33,44,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,33,44,0.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 82%);
+    }
+
+    .container {
+      position: relative;
+      max-width: 960px;
       margin: 0 auto;
+      padding: 32px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, #fffdf8, #fff4df);
+      border: 1px solid var(--line);
+      box-shadow: 0 26px 70px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.72);
+      overflow: hidden;
     }
 
-    .hero {
-      position: sticky;
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 96% 8%, rgba(255, 209, 102, 0.22), transparent 18%),
+        linear-gradient(135deg, rgba(255, 91, 95, 0.08), transparent 34%);
+    }
+
+    .container::after {
+      content: "";
+      position: absolute;
+      left: 0;
       top: 0;
-      z-index: 10;
-      margin: -14px -14px 14px;
-      padding: calc(16px + env(safe-area-inset-top)) 14px 14px;
-      background: rgba(255, 248, 237, 0.92);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(234, 223, 206, 0.8);
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--red), var(--yellow), var(--blue), transparent);
+      opacity: 0.85;
     }
 
-    .hero-inner {
-      max-width: 520px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .content { position: relative; z-index: 1; }
 
-    .dice {
-      width: 44px;
-      height: 44px;
+    .header {
       display: grid;
-      place-items: center;
-      flex: 0 0 auto;
-      border-radius: 14px;
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 8px 18px rgba(232, 93, 63, 0.28);
-      font-size: 24px;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 91, 95, 0.13);
+      color: var(--red-soft);
+      border: 1px solid rgba(255, 91, 95, 0.28);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 10px rgba(255, 91, 95, 0.45);
     }
 
     h1 {
+      margin: 0 0 14px;
+      color: var(--text);
+      font-size: clamp(38px, 6vw, 64px);
+      line-height: 0.98;
+      letter-spacing: -0.075em;
+      font-weight: 1000;
+    }
+
+    h1 span {
+      display: block;
+      color: transparent;
+      background: linear-gradient(90deg, #25212c, #5d506d 48%, #ff5b5f);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .desc {
+      max-width: 690px;
       margin: 0;
-      font-size: 22px;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
+      color: var(--soft);
+      font-size: 16px;
+      line-height: 1.75;
     }
 
-    .subtitle {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .panel {
-      background: var(--paper);
+    .stamp {
+      width: 138px;
+      height: 138px;
+      border-radius: 32px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.52) 0 7%, transparent 8%),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.52) 0 7%, transparent 8%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.52) 0 7%, transparent 8%),
+        radial-gradient(circle at 30% 70%, rgba(255,255,255,0.52) 0 7%, transparent 8%),
+        radial-gradient(circle at 70% 70%, rgba(255,255,255,0.52) 0 7%, transparent 8%),
+        linear-gradient(145deg, #ff6b73, #d93d47);
       border: 1px solid var(--line);
+      font-weight: 950;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 18px 38px rgba(255, 91, 95, 0.18);
+      transform: rotate(3deg);
+    }
+
+    .stamp strong {
+      display: block;
+      font-size: 40px;
+      line-height: 1;
+      color: #fffaf0;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.10);
+    }
+
+    .stamp span {
+      display: block;
+      margin-top: 7px;
+      color: #fffaf0;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+    }
+
+    .guide,
+    .game-name {
+      margin-bottom: 22px;
+      padding: 18px;
       border-radius: 22px;
-      padding: 16px;
-      box-shadow: var(--shadow);
-      margin-bottom: 14px;
+      background: linear-gradient(180deg, #fff8e8, #fff1d6);
+      border: 1px solid var(--line);
+      color: var(--soft);
+      line-height: 1.7;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
     }
 
-    .guide {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .guide strong {
-      color: var(--ink);
-    }
+    .guide strong { color: var(--text); }
 
     label {
       display: block;
-      margin: 0 0 8px;
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      margin-bottom: 9px;
+      color: var(--text);
+      font-weight: 950;
+      letter-spacing: -0.03em;
     }
 
     input[type="text"] {
       width: 100%;
-      height: 52px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: #fff;
-      color: var(--ink);
-      padding: 0 14px;
-      font-size: 16px;
+      padding: 14px 14px;
+      border: 1px solid rgba(37,33,44,0.20);
+      border-radius: 14px;
       outline: none;
-      box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.02);
+      background: var(--input);
+      color: var(--text);
+      font-size: 16px;
+      transition: 0.18s;
     }
 
+    input[type="text"]::placeholder { color: rgba(79, 74, 93, 0.55); }
     input[type="text"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(232, 93, 63, 0.13);
+      border-color: rgba(255, 77, 87, 0.82);
+      box-shadow: 0 0 0 4px rgba(255, 77, 87, 0.12);
     }
 
-    .score-list {
+    .score-grid {
       display: grid;
-      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
     }
 
     .field {
       position: relative;
-      overflow: hidden;
-      background: var(--card);
+      min-height: 178px;
+      padding: 18px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--card), #fff7e8);
       border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 14px;
-      box-shadow: 0 4px 10px rgba(62, 42, 22, 0.05);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.78), 0 12px 26px rgba(70,45,20,0.10);
+      overflow: hidden;
+      transition: transform 0.18s, border-color 0.18s, background 0.18s;
     }
 
     .field::before {
@@ -158,130 +248,163 @@
       position: absolute;
       left: 0;
       top: 0;
-      bottom: 0;
-      width: 5px;
-      background: var(--accent);
-      opacity: 0.8;
+      width: 7px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--red), var(--yellow), var(--blue));
+      opacity: 0.95;
+    }
+
+    .field::after {
+      content: "♟";
+      position: absolute;
+      right: 16px;
+      top: 12px;
+      color: rgba(37,33,44,0.10);
+      font-size: 42px;
+      line-height: 1;
+    }
+
+    .field:hover {
+      transform: translateY(-3px) rotate(-0.35deg);
+      border-color: rgba(255, 209, 102, 0.55);
+      background: linear-gradient(180deg, var(--card-hover), #fff2d9);
     }
 
     .field-head {
+      position: relative;
+      z-index: 1;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 8px;
     }
 
-    .field label {
-      margin: 0;
-      padding-left: 3px;
+    .field-head label { margin: 0; padding-right: 8px; }
+
+    .field small {
+      position: relative;
+      z-index: 1;
+      display: block;
+      min-height: 44px;
+      margin-top: 9px;
+      color: var(--muted);
+      line-height: 1.58;
+      font-size: 14px;
+      font-weight: 600;
     }
 
     .score-preview {
       flex: 0 0 auto;
-      min-width: 48px;
-      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
       border-radius: 999px;
-      background: #f0f7f4;
-      color: var(--chip);
+      color: #171725;
+      background: linear-gradient(135deg, var(--yellow), #ffe39a);
+      border: 1px solid rgba(255, 255, 255, 0.38);
       font-size: 13px;
+      font-weight: 950;
+      box-shadow: 0 8px 18px rgba(255, 209, 102, 0.12);
+    }
+
+    .score-preview::before { content: "🎲"; font-size: 13px; }
+
+    .toggle-wrap {
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+    }
+
+    .toggle-labels {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+      padding: 0 2px;
+      color: var(--muted);
+      font-size: 11px;
       font-weight: 900;
       text-align: center;
+      line-height: 1.15;
     }
 
-    .question {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-      margin: 0 0 10px;
-      padding-left: 3px;
-    }
-
-    .choice-grid {
+    .toggle-control {
+      --pos: 4;
+      position: relative;
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 7px;
-      margin-top: 10px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      min-height: 48px;
+      padding: 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.74);
+      border: 1px solid rgba(37,33,44,0.14);
+      box-shadow: inset 0 1px 4px rgba(70,45,20,0.10);
+      overflow: hidden;
     }
 
-    .choice-btn {
-      min-height: 46px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
+    .toggle-control::before {
+      content: "";
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      left: calc(5px + ((100% - 10px) / 5) * var(--pos));
+      width: calc((100% - 10px) / 5);
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--yellow), #ffb66b 52%, #ff7d7f);
+      box-shadow: 0 10px 20px rgba(255, 91, 95, 0.18), inset 0 1px 0 rgba(255,255,255,0.45);
+      transition: left 0.18s ease;
+    }
+
+    .toggle-option {
+      position: relative;
+      z-index: 1;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 1000;
+      cursor: pointer;
+      min-width: 0;
+      padding: 0;
+      transition: color 0.16s ease, transform 0.16s ease;
+    }
+
+    .toggle-option:hover { transform: translateY(-1px); }
+    .toggle-option.active { color: #171725; }
+
+    .toggle-current {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
       color: var(--muted);
-      padding: 8px 4px;
       font-size: 12px;
       font-weight: 900;
-      line-height: 1.15;
-      cursor: pointer;
-      word-break: keep-all;
-      box-shadow: 0 2px 6px rgba(62, 42, 22, 0.04);
     }
 
-    .choice-btn span {
-      display: block;
-      margin-top: 3px;
-      font-size: 11px;
-      font-weight: 800;
-      opacity: 0.72;
-    }
-
-    .choice-btn.active {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 8px 16px rgba(232, 93, 63, 0.23);
-      transform: translateY(-1px);
-    }
-
-    .choice-btn:active {
-      transform: scale(0.97);
-    }
-
-    @media (max-width: 390px) {
-      .choice-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .choice-btn {
-        min-height: 42px;
-        font-size: 12px;
-      }
-    }
-
-    .primary-btn {
-      width: 100%;
-      min-height: 56px;
-      border: 0;
-      border-radius: 18px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 17px;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(232, 93, 63, 0.28);
-    }
-
-    .primary-btn:active {
-      transform: translateY(1px);
-      background: var(--accent-dark);
+    .toggle-current b {
+      color: var(--red-soft);
+      font-size: 13px;
     }
 
     .result {
-      display: none;
-      margin-top: 14px;
-      background: #29211c;
-      color: #fff8ed;
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: 0 12px 26px rgba(32, 26, 22, 0.22);
+      margin-top: 24px;
+      padding: 24px;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #ffffff, #fff4df);
+      border: 1px solid rgba(255, 160, 80, 0.38);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.80), 0 18px 40px rgba(70,45,20,0.12);
     }
 
     .result h2 {
       margin: 0 0 12px;
-      font-size: 18px;
+      color: var(--text);
+      font-size: 24px;
+      letter-spacing: -0.04em;
     }
 
     .score-row {
@@ -292,65 +415,89 @@
     }
 
     .score-box {
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
+      padding: 14px;
+      border-radius: 18px;
+      background: #fff8e8;
+      border: 1px solid var(--line-soft);
     }
 
     .score-box span {
       display: block;
-      color: #d4c7b5;
+      color: var(--muted);
       font-size: 12px;
+      font-weight: 900;
       margin-bottom: 4px;
     }
 
     .score-box b {
-      display: block;
-      font-size: 20px;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 1000;
     }
 
     .final-score {
-      margin: 10px 0 14px;
-      padding: 14px;
-      border-radius: 18px;
-      background: #fff8ed;
-      color: var(--ink);
-      font-size: 28px;
+      margin: 12px 0 20px;
+      color: transparent;
+      background: linear-gradient(90deg, #25212c, var(--red), var(--blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      font-size: clamp(44px, 8vw, 78px);
       font-weight: 1000;
-      text-align: center;
+      letter-spacing: -0.08em;
+      line-height: 1;
     }
 
     .summary,
     .copy-box {
-      margin-top: 12px;
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      color: var(--soft);
+      line-height: 1.75;
       white-space: pre-line;
-      line-height: 1.6;
-      font-size: 14px;
     }
 
     .copy-box {
-      max-height: 220px;
-      overflow: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12.5px;
+      border-style: dashed;
+      color: var(--text);
+      font-size: 14px;
     }
 
     .copy-btn {
+      margin-top: 14px;
+      background: linear-gradient(135deg, #25212c, #5d506d);
+      color: #fffaf0;
+      box-shadow: 0 12px 24px rgba(37,33,44,0.18);
+    }
+
+    .main-btn,
+    .bottom-bar button,
+    .copy-btn {
       width: 100%;
-      margin-top: 10px;
-      min-height: 48px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 15px;
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff8ed;
-      font-size: 15px;
-      font-weight: 800;
+      padding: 17px;
+      border: 0;
+      border-radius: 20px;
+      font-size: 17px;
+      font-weight: 1000;
       cursor: pointer;
+      transition: 0.18s;
+      letter-spacing: -0.02em;
+    }
+
+    .main-btn,
+    .bottom-bar button {
+      color: #171725;
+      background: linear-gradient(135deg, var(--yellow) 0%, #ff8c5a 48%, var(--red) 100%);
+      box-shadow: 0 16px 34px rgba(255, 91, 95, 0.22), inset 0 1px 0 rgba(255,255,255,0.30);
+    }
+
+    .main-btn:hover,
+    .bottom-bar button:hover,
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.04);
     }
 
     .bottom-bar {
@@ -359,271 +506,176 @@
       right: 0;
       bottom: 0;
       z-index: 20;
-      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(255, 248, 237, 0.88);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid rgba(234, 223, 206, 0.9);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255, 250, 240, 0.78);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(37,33,44,0.12);
     }
 
     .bottom-inner {
-      max-width: 520px;
+      max-width: 960px;
       margin: 0 auto;
-      display: flex;
+      display: grid;
+      grid-template-columns: 86px 1fr;
       gap: 10px;
       align-items: center;
     }
 
     .live-score {
-      width: 96px;
-      min-height: 54px;
-      border-radius: 18px;
-      background: #29211c;
-      color: #fff8ed;
+      height: 56px;
       display: grid;
       place-items: center;
-      line-height: 1.05;
+      align-content: center;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line-soft);
+      box-shadow: 0 8px 18px rgba(70,45,20,0.09);
+    }
+
+    .live-score span {
+      display: block;
+      color: var(--red-soft);
+      font-size: 20px;
       font-weight: 1000;
-      text-align: center;
-      flex: 0 0 auto;
+      line-height: 1;
     }
 
     .live-score small {
       display: block;
-      font-size: 11px;
-      color: #d4c7b5;
-      font-weight: 700;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
     }
 
-    .bottom-inner .primary-btn {
-      min-height: 54px;
-      border-radius: 18px;
-    }
-
-    @media (min-width: 760px) {
-      body {
-        padding-top: 24px;
-      }
-
-      .hero {
-        border-radius: 24px;
-        margin: 0 0 16px;
-        top: 12px;
-        border: 1px solid var(--line);
-      }
-
-      .score-list {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .field:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
-      }
+    @media (max-width: 720px) {
+      body { padding: 14px 10px 104px; }
+      .container { padding: 20px; border-radius: 22px; }
+      .header { grid-template-columns: 1fr; gap: 16px; }
+      .stamp { width: 108px; height: 108px; border-radius: 24px; }
+      .score-grid { grid-template-columns: 1fr; }
+      .field { min-height: auto; padding: 17px; }
+      .field:hover { transform: none; }
+      .field small { min-height: auto; }
+      .toggle-labels { font-size: 10px; }
+      .toggle-option { font-size: 12px; }
+      .score-row { grid-template-columns: 1fr; }
+      h1 { font-size: 42px; }
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header class="hero">
-      <div class="hero-inner">
-        <div class="dice" aria-hidden="true">🎲</div>
+  <main class="container">
+    <div class="content">
+      <section class="header">
         <div>
-          <h1>보드게임 평점 계산기</h1>
-          <p class="subtitle">모바일용 · 버튼만 톡톡 누르면 자동 총평 생성</p>
+          <div class="eyebrow">🎲 BOARDGAME RATING</div>
+          <h1>오늘의<br /><span>게임 판정단</span></h1>
+          <p class="desc">
+            전략게임, 파티게임, 머더미스터리까지 한 판으로 기록합니다. 느낌으로 체크하면 점수와 총평이 자동으로 굴러갑니다.
+          </p>
         </div>
+        <div class="stamp">
+          <div>
+            <strong>/10</strong>
+            <span>DICE SCORE</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="guide">
+        <strong>점수 변환 기준</strong><br />
+        매우 그렇다 = 10점 · 그렇다 = 8점 · 보통이다 = 6점 · 아니다 = 4점 · 전혀 아니다 = 2점
       </div>
-    </header>
 
-    <section class="panel guide">
-      <div>📌</div>
-      <div>
-        <strong>점수 변환</strong><br />
-        버튼 선택: 매우 그렇다 10 · 그렇다 8 · 보통 6 · 아니다 4 · 전혀 아니다 2
+      <div class="game-name">
+        <label for="gameName">게임명</label>
+        <input type="text" id="gameName" placeholder="예: 듄 임페리움, 아르낙, 스플렌더, 머더미스터리" />
       </div>
-    </section>
 
-    <section class="panel">
-      <label for="gameName">게임명</label>
-      <input type="text" id="gameName" placeholder="예: 듄 임페리움, 아르낙, 스플렌더" />
-    </section>
+      <div class="score-grid" id="scoreGrid"></div>
 
-    <section class="score-list" aria-label="평가 항목">
-      <article class="field">
-        <div class="field-head">
-          <label>재미 / 몰입감</label>
-          <span class="score-preview" id="funPreview">10점</span>
-        </div>
-        <p class="question">플레이하는 동안 지루하지 않고 몰입이 잘 되는가?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
-          <button type="button" class="choice-btn active" data-field="fun" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
-그렇다<span>10점</span></button>
-          <button type="button" class="choice-btn" data-field="fun" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
-          <button type="button" class="choice-btn" data-field="fun" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
-          <button type="button" class="choice-btn" data-field="fun" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
-          <button type="button" class="choice-btn" data-field="fun" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
-아니다<span>2점</span></button>
-        </div>
-      </article>
+      <button class="main-btn" onclick="calculateScore(true)">주사위 굴려 평점 계산하기</button>
 
-      <article class="field">
-        <div class="field-head">
-          <label>선택의 만족감</label>
-          <span class="score-preview" id="decisionPreview">10점</span>
+      <div class="result" id="result" style="display:none;">
+        <h2>평가 결과</h2>
+        <div class="score-row">
+          <div class="score-box"><span>총합</span><b id="totalScore"></b></div>
+          <div class="score-box"><span>평균</span><b id="averageScore"></b></div>
         </div>
-        <p class="question">전략, 추리, 대화, 연기 등 내가 한 선택이 의미 있게 느껴지는가?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
-          <button type="button" class="choice-btn active" data-field="decision" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
-그렇다<span>10점</span></button>
-          <button type="button" class="choice-btn" data-field="decision" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
-          <button type="button" class="choice-btn" data-field="decision" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
-          <button type="button" class="choice-btn" data-field="decision" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
-          <button type="button" class="choice-btn" data-field="decision" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
-아니다<span>2점</span></button>
-        </div>
-      </article>
-
-      <article class="field">
-        <div class="field-head">
-          <label>진행감 / 템포</label>
-          <span class="score-preview" id="flowPreview">10점</span>
-        </div>
-        <p class="question">게임이 늘어지지 않고 적당한 속도로 흘러가는가?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
-          <button type="button" class="choice-btn active" data-field="flow" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
-그렇다<span>10점</span></button>
-          <button type="button" class="choice-btn" data-field="flow" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
-          <button type="button" class="choice-btn" data-field="flow" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
-          <button type="button" class="choice-btn" data-field="flow" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
-          <button type="button" class="choice-btn" data-field="flow" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
-아니다<span>2점</span></button>
-        </div>
-      </article>
-
-      <article class="field">
-        <div class="field-head">
-          <label>상호작용 / 분위기</label>
-          <span class="score-preview" id="interactionPreview">10점</span>
-        </div>
-        <p class="question">대화, 견제, 협력, 웃음, 긴장감이 잘 살아나는가?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
-          <button type="button" class="choice-btn active" data-field="interaction" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
-그렇다<span>10점</span></button>
-          <button type="button" class="choice-btn" data-field="interaction" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
-          <button type="button" class="choice-btn" data-field="interaction" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
-          <button type="button" class="choice-btn" data-field="interaction" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
-          <button type="button" class="choice-btn" data-field="interaction" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
-아니다<span>2점</span></button>
-        </div>
-      </article>
-
-      <article class="field">
-        <div class="field-head">
-          <label>테마 몰입도</label>
-          <span class="score-preview" id="themePreview">10점</span>
-        </div>
-        <p class="question">콘셉트, 스토리, 역할, 분위기가 플레이 중 잘 느껴지는가?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
-          <button type="button" class="choice-btn active" data-field="theme" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
-그렇다<span>10점</span></button>
-          <button type="button" class="choice-btn" data-field="theme" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
-          <button type="button" class="choice-btn" data-field="theme" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
-          <button type="button" class="choice-btn" data-field="theme" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
-          <button type="button" class="choice-btn" data-field="theme" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
-아니다<span>2점</span></button>
-        </div>
-      </article>
-
-      <article class="field">
-        <div class="field-head">
-          <label>납득감 / 공정성</label>
-          <span class="score-preview" id="fairnessPreview">8점</span>
-        </div>
-        <p class="question">운, 밸런스, 정보 차이, 탈락 등이 있어도 결과가 납득되는가?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
-          <button type="button" class="choice-btn" data-field="fairness" data-value="10" aria-pressed="false" onclick="selectScore(this)">매우
-그렇다<span>10점</span></button>
-          <button type="button" class="choice-btn active" data-field="fairness" data-value="8" aria-pressed="true" onclick="selectScore(this)">그렇다<span>8점</span></button>
-          <button type="button" class="choice-btn" data-field="fairness" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
-          <button type="button" class="choice-btn" data-field="fairness" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
-          <button type="button" class="choice-btn" data-field="fairness" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
-아니다<span>2점</span></button>
-        </div>
-      </article>
-
-      <article class="field">
-        <div class="field-head">
-          <label>재플레이 욕구</label>
-          <span class="score-preview" id="replayPreview">8점</span>
-        </div>
-        <p class="question">다시 하거나, 다른 사람에게 소개하거나, 비슷한 경험을 또 하고 싶은가?</p>
-        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
-          <button type="button" class="choice-btn" data-field="replay" data-value="10" aria-pressed="false" onclick="selectScore(this)">매우
-그렇다<span>10점</span></button>
-          <button type="button" class="choice-btn active" data-field="replay" data-value="8" aria-pressed="true" onclick="selectScore(this)">그렇다<span>8점</span></button>
-          <button type="button" class="choice-btn" data-field="replay" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
-          <button type="button" class="choice-btn" data-field="replay" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
-          <button type="button" class="choice-btn" data-field="replay" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
-아니다<span>2점</span></button>
-        </div>
-      </article>
-    </section>
-
-    <section class="result" id="result">
-      <h2>평가 결과</h2>
-      <div class="score-row">
-        <div class="score-box"><span>총합</span><b id="totalScore">-</b></div>
-        <div class="score-box"><span>평균</span><b id="averageScore">-</b></div>
+        <div class="final-score" id="boardlifeScore"></div>
+        <div class="summary" id="summaryText"></div>
+        <div class="copy-box" id="copyText"></div>
+        <button class="copy-btn" onclick="copyReview()">평가 내용 복사하기</button>
       </div>
-      <div class="final-score" id="finalScore">최종 평점 -점</div>
-      <div class="summary" id="summaryText"></div>
-      <div class="copy-box" id="copyText"></div>
-      <button class="copy-btn" onclick="copyReview()">평가 내용 복사하기</button>
-    </section>
+    </div>
   </main>
 
   <nav class="bottom-bar" aria-label="계산 바로가기">
     <div class="bottom-inner">
-      <div class="live-score"><span id="liveScore">9</span><small>현재평균</small></div>
-      <button class="primary-btn" onclick="calculateScore(true)">평점 계산하기</button>
+      <div class="live-score"><span id="liveScore">9.1</span><small>현재평균</small></div>
+      <button type="button" onclick="calculateScore(true)">평점 계산하기</button>
     </div>
   </nav>
 
   <script>
-    const labels = {
-      10: "매우 그렇다",
-      8: "그렇다",
-      6: "보통이다",
-      4: "아니다",
-      2: "전혀 아니다"
-    };
-
+    const labels = { 10: "매우 그렇다", 8: "그렇다", 6: "보통이다", 4: "아니다", 2: "전혀 아니다" };
+    const options = [2, 4, 6, 8, 10];
+    const optionText = { 2: "전혀\n아니다", 4: "아니다", 6: "보통", 8: "그렇다", 10: "매우\n그렇다" };
     const fields = [
-      "fun",
-      "decision",
-      "flow",
-      "interaction",
-      "theme",
-      "fairness",
-      "replay"
+      { id: "fun", title: "🎯 재미 / 몰입감", desc: "플레이하는 동안 지루하지 않고 몰입이 잘 되는가?", defaultValue: 10 },
+      { id: "decision", title: "🃏 선택의 만족감", desc: "전략, 추리, 대화, 연기 등 내가 한 선택이 의미 있게 느껴지는가?", defaultValue: 10 },
+      { id: "flow", title: "⏱ 진행감 / 템포", desc: "게임이 늘어지지 않고 적당한 속도로 흘러가는가?", defaultValue: 10 },
+      { id: "interaction", title: "🧩 상호작용 / 분위기", desc: "사람들과의 대화, 견제, 협력, 웃음, 긴장감이 잘 살아나는가?", defaultValue: 10 },
+      { id: "theme", title: "🗺 테마 몰입도", desc: "게임의 콘셉트, 스토리, 역할, 분위기가 플레이 중 잘 느껴지는가?", defaultValue: 10 },
+      { id: "fairness", title: "⚖ 납득감 / 공정성", desc: "운, 밸런스, 정보 차이, 탈락 등이 있어도 결과가 납득되는가?", defaultValue: 8 },
+      { id: "replay", title: "🔁 재플레이 욕구", desc: "다시 하거나, 다른 사람에게 소개하거나, 비슷한 경험을 또 하고 싶은가?", defaultValue: 8 }
     ];
 
-    function getScore(id) {
-      const activeButton = document.querySelector(`.choice-btn[data-field="${id}"].active`);
-      return activeButton ? Number(activeButton.dataset.value) : 0;
+    const scores = Object.fromEntries(fields.map((field) => [field.id, field.defaultValue]));
+
+    function renderFields() {
+      const grid = document.getElementById("scoreGrid");
+      grid.innerHTML = fields.map((field) => {
+        const pos = options.indexOf(field.defaultValue);
+        return `
+          <div class="field">
+            <div class="field-head">
+              <label>${field.title}</label>
+              <span class="score-preview" id="${field.id}Preview">${field.defaultValue}점</span>
+            </div>
+            <small>${field.desc}</small>
+            <div class="toggle-wrap">
+              <div class="toggle-labels" aria-hidden="true">
+                <span>전혀<br />아니다</span><span>아니다</span><span>보통</span><span>그렇다</span><span>매우<br />그렇다</span>
+              </div>
+              <div class="toggle-control" id="${field.id}Toggle" role="radiogroup" aria-label="${field.title.replace(/^[^가-힣A-Za-z0-9]+\s*/, "")} 평가" style="--pos:${pos}">
+                ${options.map((value) => `<button type="button" class="toggle-option ${value === field.defaultValue ? "active" : ""}" data-field="${field.id}" data-value="${value}" aria-pressed="${value === field.defaultValue}" onclick="selectScore(this)">${value}</button>`).join("")}
+              </div>
+              <div class="toggle-current"><span>낮음</span><b id="${field.id}Label">${labels[field.defaultValue]}</b><span>높음</span></div>
+            </div>
+          </div>`;
+      }).join("");
     }
 
-    function getLabel(id) {
-      return labels[getScore(id)];
-    }
+    function getScore(id) { return scores[id] || 0; }
+    function getLabel(id) { return labels[getScore(id)]; }
 
     function selectScore(button) {
       const field = button.dataset.field;
-      document.querySelectorAll(`.choice-btn[data-field="${field}"]`).forEach((btn) => {
-        btn.classList.remove("active");
-        btn.setAttribute("aria-pressed", "false");
+      const value = Number(button.dataset.value);
+      scores[field] = value;
+
+      document.querySelectorAll(`.toggle-option[data-field="${field}"]`).forEach((option) => {
+        const isActive = Number(option.dataset.value) === value;
+        option.classList.toggle("active", isActive);
+        option.setAttribute("aria-pressed", String(isActive));
       });
-      button.classList.add("active");
-      button.setAttribute("aria-pressed", "true");
+
+      const toggle = document.getElementById(`${field}Toggle`);
+      toggle.style.setProperty("--pos", options.indexOf(value));
       updatePreviews();
+      calculateScore(false);
     }
 
     function getScores() {
@@ -638,16 +690,16 @@
       };
     }
 
-    function getAverage(scores) {
-      const total = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    function getAverage(currentScores) {
+      const total = Object.values(currentScores).reduce((sum, score) => sum + score, 0);
       return { total, avg: total / fields.length };
     }
 
     function updatePreviews() {
-      fields.forEach((id) => {
-        document.getElementById(`${id}Preview`).textContent = `${getScore(id)}점`;
+      fields.forEach((field) => {
+        document.getElementById(`${field.id}Preview`).textContent = `${getScore(field.id)}점`;
+        document.getElementById(`${field.id}Label`).textContent = getLabel(field.id);
       });
-
       const { avg } = getAverage(getScores());
       document.getElementById("liveScore").textContent = avg.toFixed(1);
     }
@@ -661,72 +713,59 @@
       return "내 취향과는 거리가 큼.";
     }
 
-    function getShortReview(scores, avg) {
+    function getShortReview(currentScores, avg) {
       const strongPoints = [];
       const weakPoints = [];
 
-      if (scores.fun >= 8) strongPoints.push("재미/몰입감");
-      if (scores.decision >= 8) strongPoints.push("선택의 만족감");
-      if (scores.flow >= 8) strongPoints.push("진행감/템포");
-      if (scores.interaction >= 8) strongPoints.push("상호작용/분위기");
-      if (scores.theme >= 8) strongPoints.push("테마 몰입도");
-      if (scores.fairness >= 8) strongPoints.push("납득감/공정성");
-      if (scores.replay >= 8) strongPoints.push("재플레이 욕구");
+      if (currentScores.fun >= 8) strongPoints.push("재미/몰입감");
+      if (currentScores.decision >= 8) strongPoints.push("선택의 만족감");
+      if (currentScores.flow >= 8) strongPoints.push("진행감/템포");
+      if (currentScores.interaction >= 8) strongPoints.push("상호작용/분위기");
+      if (currentScores.theme >= 8) strongPoints.push("테마 몰입도");
+      if (currentScores.replay >= 8) strongPoints.push("재플레이 욕구");
 
-      if (scores.fairness <= 6) weakPoints.push("납득감/공정성");
-      if (scores.flow <= 6) weakPoints.push("템포");
-      if (scores.interaction <= 6) weakPoints.push("상호작용");
-      if (scores.theme <= 6) weakPoints.push("테마 몰입도");
-      if (scores.replay <= 6) weakPoints.push("재플레이 욕구");
+      if (currentScores.fairness <= 6) weakPoints.push("납득감/공정성에서 약간의 아쉬움");
+      if (currentScores.flow <= 6) weakPoints.push("템포 부담");
+      if (currentScores.interaction <= 6) weakPoints.push("상호작용 부족");
+      if (currentScores.theme <= 6) weakPoints.push("테마 몰입도 부족");
 
       let review = getGradeText(avg) + "\n\n";
-
-      if (strongPoints.length > 0) {
-        review += `좋았던 부분은 ${strongPoints.join(", ")} 쪽. `;
-      }
-
-      if (weakPoints.length > 0) {
-        review += `다만 ${weakPoints.join(", ")}은 사람이나 상황에 따라 감점될 수 있음.`;
-      } else {
-        review += "큰 약점 없이 전체적으로 안정적인 평가.";
-      }
-
+      if (strongPoints.length > 0) review += `강점은 ${strongPoints.join(", ")}이며, 장르와 상관없이 좋은 경험을 주는 게임으로 보임.`;
+      if (weakPoints.length > 0) review += ` 다만 ${weakPoints.join(", ")}은 감점 요소.`;
       return review;
     }
 
     function calculateScore(scrollToResult = false) {
       const gameName = document.getElementById("gameName").value.trim() || "미입력 게임";
-      const scores = getScores();
-      const { total, avg } = getAverage(scores);
-      const finalScore = Math.round(avg);
-      const review = getShortReview(scores, avg);
+      const currentScores = getScores();
+      const { total, avg } = getAverage(currentScores);
+      const finalScore = avg.toFixed(2);
+      const review = getShortReview(currentScores, avg);
 
       document.getElementById("result").style.display = "block";
-      document.getElementById("totalScore").textContent = `${total.toFixed(1)} / 70`;
-      document.getElementById("averageScore").textContent = `${avg.toFixed(2)} / 10`;
-      document.getElementById("finalScore").textContent = `최종 추천 평점 ${finalScore}점`;
+      document.getElementById("totalScore").textContent = `${total.toFixed(1)} / 70점`;
+      document.getElementById("averageScore").textContent = `${avg.toFixed(2)} / 10점`;
+      document.getElementById("boardlifeScore").textContent = `최종 평점: ${finalScore}점`;
       document.getElementById("summaryText").textContent = review;
 
       document.getElementById("copyText").textContent =
 `${gameName} 평가
 
-재미/몰입감: ${getLabel("fun")} (${scores.fun}/10)
-선택의 만족감: ${getLabel("decision")} (${scores.decision}/10)
-진행감/템포: ${getLabel("flow")} (${scores.flow}/10)
-상호작용/분위기: ${getLabel("interaction")} (${scores.interaction}/10)
-테마 몰입도: ${getLabel("theme")} (${scores.theme}/10)
-납득감/공정성: ${getLabel("fairness")} (${scores.fairness}/10)
-재플레이 욕구: ${getLabel("replay")} (${scores.replay}/10)
+재미/몰입감: ${getLabel("fun")} (${currentScores.fun}/10)
+선택의 만족감: ${getLabel("decision")} (${currentScores.decision}/10)
+진행감/템포: ${getLabel("flow")} (${currentScores.flow}/10)
+상호작용/분위기: ${getLabel("interaction")} (${currentScores.interaction}/10)
+테마 몰입도: ${getLabel("theme")} (${currentScores.theme}/10)
+납득감/공정성: ${getLabel("fairness")} (${currentScores.fairness}/10)
+재플레이 욕구: ${getLabel("replay")} (${currentScores.replay}/10)
 
 총합: ${total.toFixed(1)} / 70
 평균: ${avg.toFixed(2)} / 10
-최종 추천 평점: ${finalScore}점
+최종 평점: ${finalScore}점
 
 총평: ${review}`;
 
-      if (scrollToResult) {
-        document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      if (scrollToResult) document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     async function copyReview() {
@@ -739,6 +778,7 @@
       }
     }
 
+    renderFields();
     updatePreviews();
     calculateScore(false);
   </script>
