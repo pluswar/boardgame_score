@@ -198,31 +198,57 @@
       padding-left: 3px;
     }
 
-    select {
-      width: 100%;
-      height: 50px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: #fff;
-      color: var(--ink);
-      padding: 0 40px 0 13px;
-      font-size: 16px;
-      font-weight: 700;
-      outline: none;
-      appearance: none;
-      background-image:
-        linear-gradient(45deg, transparent 50%, var(--muted) 50%),
-        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-      background-position:
-        calc(100% - 23px) 21px,
-        calc(100% - 16px) 21px;
-      background-size: 7px 7px, 7px 7px;
-      background-repeat: no-repeat;
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 10px;
     }
 
-    select:focus {
+    .choice-btn {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--muted);
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.15;
+      cursor: pointer;
+      word-break: keep-all;
+      box-shadow: 0 2px 6px rgba(62, 42, 22, 0.04);
+    }
+
+    .choice-btn span {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 800;
+      opacity: 0.72;
+    }
+
+    .choice-btn.active {
       border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(232, 93, 63, 0.13);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(232, 93, 63, 0.23);
+      transform: translateY(-1px);
+    }
+
+    .choice-btn:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 390px) {
+      .choice-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .choice-btn {
+        min-height: 42px;
+        font-size: 12px;
+      }
     }
 
     .primary-btn {
@@ -402,7 +428,7 @@
         <div class="dice" aria-hidden="true">🎲</div>
         <div>
           <h1>보드게임 평점 계산기</h1>
-          <p class="subtitle">모바일용 · 느낌만 고르면 자동 총평 생성</p>
+          <p class="subtitle">모바일용 · 버튼만 톡톡 누르면 자동 총평 생성</p>
         </div>
       </div>
     </header>
@@ -411,7 +437,7 @@
       <div>📌</div>
       <div>
         <strong>점수 변환</strong><br />
-        매우 그렇다 10 · 그렇다 8 · 보통이다 6 · 아니다 4 · 전혀 아니다 2
+        버튼 선택: 매우 그렇다 10 · 그렇다 8 · 보통 6 · 아니다 4 · 전혀 아니다 2
       </div>
     </section>
 
@@ -423,107 +449,121 @@
     <section class="score-list" aria-label="평가 항목">
       <article class="field">
         <div class="field-head">
-          <label for="fun">재미 / 몰입감</label>
+          <label>재미 / 몰입감</label>
           <span class="score-preview" id="funPreview">10점</span>
         </div>
         <p class="question">플레이하는 동안 지루하지 않고 몰입이 잘 되는가?</p>
-        <select id="fun" onchange="updatePreviews()">
-          <option value="10" selected>매우 그렇다</option>
-          <option value="8">그렇다</option>
-          <option value="6">보통이다</option>
-          <option value="4">아니다</option>
-          <option value="2">전혀 아니다</option>
-        </select>
+        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
+          <button type="button" class="choice-btn active" data-field="fun" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
+그렇다<span>10점</span></button>
+          <button type="button" class="choice-btn" data-field="fun" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
+          <button type="button" class="choice-btn" data-field="fun" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
+          <button type="button" class="choice-btn" data-field="fun" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
+          <button type="button" class="choice-btn" data-field="fun" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
+아니다<span>2점</span></button>
+        </div>
       </article>
 
       <article class="field">
         <div class="field-head">
-          <label for="decision">선택의 만족감</label>
+          <label>선택의 만족감</label>
           <span class="score-preview" id="decisionPreview">10점</span>
         </div>
         <p class="question">전략, 추리, 대화, 연기 등 내가 한 선택이 의미 있게 느껴지는가?</p>
-        <select id="decision" onchange="updatePreviews()">
-          <option value="10" selected>매우 그렇다</option>
-          <option value="8">그렇다</option>
-          <option value="6">보통이다</option>
-          <option value="4">아니다</option>
-          <option value="2">전혀 아니다</option>
-        </select>
+        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
+          <button type="button" class="choice-btn active" data-field="decision" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
+그렇다<span>10점</span></button>
+          <button type="button" class="choice-btn" data-field="decision" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
+          <button type="button" class="choice-btn" data-field="decision" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
+          <button type="button" class="choice-btn" data-field="decision" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
+          <button type="button" class="choice-btn" data-field="decision" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
+아니다<span>2점</span></button>
+        </div>
       </article>
 
       <article class="field">
         <div class="field-head">
-          <label for="flow">진행감 / 템포</label>
+          <label>진행감 / 템포</label>
           <span class="score-preview" id="flowPreview">10점</span>
         </div>
         <p class="question">게임이 늘어지지 않고 적당한 속도로 흘러가는가?</p>
-        <select id="flow" onchange="updatePreviews()">
-          <option value="10" selected>매우 그렇다</option>
-          <option value="8">그렇다</option>
-          <option value="6">보통이다</option>
-          <option value="4">아니다</option>
-          <option value="2">전혀 아니다</option>
-        </select>
+        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
+          <button type="button" class="choice-btn active" data-field="flow" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
+그렇다<span>10점</span></button>
+          <button type="button" class="choice-btn" data-field="flow" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
+          <button type="button" class="choice-btn" data-field="flow" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
+          <button type="button" class="choice-btn" data-field="flow" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
+          <button type="button" class="choice-btn" data-field="flow" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
+아니다<span>2점</span></button>
+        </div>
       </article>
 
       <article class="field">
         <div class="field-head">
-          <label for="interaction">상호작용 / 분위기</label>
+          <label>상호작용 / 분위기</label>
           <span class="score-preview" id="interactionPreview">10점</span>
         </div>
         <p class="question">대화, 견제, 협력, 웃음, 긴장감이 잘 살아나는가?</p>
-        <select id="interaction" onchange="updatePreviews()">
-          <option value="10" selected>매우 그렇다</option>
-          <option value="8">그렇다</option>
-          <option value="6">보통이다</option>
-          <option value="4">아니다</option>
-          <option value="2">전혀 아니다</option>
-        </select>
+        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
+          <button type="button" class="choice-btn active" data-field="interaction" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
+그렇다<span>10점</span></button>
+          <button type="button" class="choice-btn" data-field="interaction" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
+          <button type="button" class="choice-btn" data-field="interaction" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
+          <button type="button" class="choice-btn" data-field="interaction" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
+          <button type="button" class="choice-btn" data-field="interaction" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
+아니다<span>2점</span></button>
+        </div>
       </article>
 
       <article class="field">
         <div class="field-head">
-          <label for="theme">테마 몰입도</label>
+          <label>테마 몰입도</label>
           <span class="score-preview" id="themePreview">10점</span>
         </div>
         <p class="question">콘셉트, 스토리, 역할, 분위기가 플레이 중 잘 느껴지는가?</p>
-        <select id="theme" onchange="updatePreviews()">
-          <option value="10" selected>매우 그렇다</option>
-          <option value="8">그렇다</option>
-          <option value="6">보통이다</option>
-          <option value="4">아니다</option>
-          <option value="2">전혀 아니다</option>
-        </select>
+        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
+          <button type="button" class="choice-btn active" data-field="theme" data-value="10" aria-pressed="true" onclick="selectScore(this)">매우
+그렇다<span>10점</span></button>
+          <button type="button" class="choice-btn" data-field="theme" data-value="8" aria-pressed="false" onclick="selectScore(this)">그렇다<span>8점</span></button>
+          <button type="button" class="choice-btn" data-field="theme" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
+          <button type="button" class="choice-btn" data-field="theme" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
+          <button type="button" class="choice-btn" data-field="theme" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
+아니다<span>2점</span></button>
+        </div>
       </article>
 
       <article class="field">
         <div class="field-head">
-          <label for="fairness">납득감 / 공정성</label>
+          <label>납득감 / 공정성</label>
           <span class="score-preview" id="fairnessPreview">8점</span>
         </div>
         <p class="question">운, 밸런스, 정보 차이, 탈락 등이 있어도 결과가 납득되는가?</p>
-        <select id="fairness" onchange="updatePreviews()">
-          <option value="10">매우 그렇다</option>
-          <option value="8" selected>그렇다</option>
-          <option value="6">보통이다</option>
-          <option value="4">아니다</option>
-          <option value="2">전혀 아니다</option>
-        </select>
+        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
+          <button type="button" class="choice-btn" data-field="fairness" data-value="10" aria-pressed="false" onclick="selectScore(this)">매우
+그렇다<span>10점</span></button>
+          <button type="button" class="choice-btn active" data-field="fairness" data-value="8" aria-pressed="true" onclick="selectScore(this)">그렇다<span>8점</span></button>
+          <button type="button" class="choice-btn" data-field="fairness" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
+          <button type="button" class="choice-btn" data-field="fairness" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
+          <button type="button" class="choice-btn" data-field="fairness" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
+아니다<span>2점</span></button>
+        </div>
       </article>
 
       <article class="field">
         <div class="field-head">
-          <label for="replay">재플레이 욕구</label>
+          <label>재플레이 욕구</label>
           <span class="score-preview" id="replayPreview">8점</span>
         </div>
         <p class="question">다시 하거나, 다른 사람에게 소개하거나, 비슷한 경험을 또 하고 싶은가?</p>
-        <select id="replay" onchange="updatePreviews()">
-          <option value="10">매우 그렇다</option>
-          <option value="8" selected>그렇다</option>
-          <option value="6">보통이다</option>
-          <option value="4">아니다</option>
-          <option value="2">전혀 아니다</option>
-        </select>
+        <div class="choice-grid" role="radiogroup" aria-label="평가 선택">
+          <button type="button" class="choice-btn" data-field="replay" data-value="10" aria-pressed="false" onclick="selectScore(this)">매우
+그렇다<span>10점</span></button>
+          <button type="button" class="choice-btn active" data-field="replay" data-value="8" aria-pressed="true" onclick="selectScore(this)">그렇다<span>8점</span></button>
+          <button type="button" class="choice-btn" data-field="replay" data-value="6" aria-pressed="false" onclick="selectScore(this)">보통<span>6점</span></button>
+          <button type="button" class="choice-btn" data-field="replay" data-value="4" aria-pressed="false" onclick="selectScore(this)">아니다<span>4점</span></button>
+          <button type="button" class="choice-btn" data-field="replay" data-value="2" aria-pressed="false" onclick="selectScore(this)">전혀
+아니다<span>2점</span></button>
+        </div>
       </article>
     </section>
 
@@ -567,11 +607,23 @@
     ];
 
     function getScore(id) {
-      return Number(document.getElementById(id).value);
+      const activeButton = document.querySelector(`.choice-btn[data-field="${id}"].active`);
+      return activeButton ? Number(activeButton.dataset.value) : 0;
     }
 
     function getLabel(id) {
       return labels[getScore(id)];
+    }
+
+    function selectScore(button) {
+      const field = button.dataset.field;
+      document.querySelectorAll(`.choice-btn[data-field="${field}"]`).forEach((btn) => {
+        btn.classList.remove("active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("active");
+      button.setAttribute("aria-pressed", "true");
+      updatePreviews();
     }
 
     function getScores() {
