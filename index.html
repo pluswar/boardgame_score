@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>보드게임 모바일 평점 계산기</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --paper: #fffaf0;
+      --card: #ffffff;
+      --ink: #201a16;
+      --muted: #75685f;
+      --line: #eadfce;
+      --accent: #e85d3f;
+      --accent-dark: #bf3f28;
+      --chip: #2f6f5e;
+      --shadow: 0 10px 24px rgba(62, 42, 22, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(232, 93, 63, 0.14), transparent 32%),
+        linear-gradient(180deg, #fff8ed 0%, var(--bg) 42%, #efe3d1 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 14px 14px calc(92px + env(safe-area-inset-bottom));
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: -14px -14px 14px;
+      padding: calc(16px + env(safe-area-inset-top)) 14px 14px;
+      background: rgba(255, 248, 237, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(234, 223, 206, 0.8);
+    }
+
+    .hero-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dice {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 14px;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(232, 93, 63, 0.28);
+      font-size: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .guide {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .guide strong {
+      color: var(--ink);
+    }
+
+    label {
+      display: block;
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      height: 52px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 14px;
+      font-size: 16px;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.02);
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(232, 93, 63, 0.13);
+    }
+
+    .score-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      position: relative;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 4px 10px rgba(62, 42, 22, 0.05);
+    }
+
+    .field::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--accent);
+      opacity: 0.8;
+    }
+
+    .field-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .field label {
+      margin: 0;
+      padding-left: 3px;
+    }
+
+    .score-preview {
+      flex: 0 0 auto;
+      min-width: 48px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f0f7f4;
+      color: var(--chip);
+      font-size: 13px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .question {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 0 0 10px;
+      padding-left: 3px;
+    }
+
+    select {
+      width: 100%;
+      height: 50px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 40px 0 13px;
+      font-size: 16px;
+      font-weight: 700;
+      outline: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position:
+        calc(100% - 23px) 21px,
+        calc(100% - 16px) 21px;
+      background-size: 7px 7px, 7px 7px;
+      background-repeat: no-repeat;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(232, 93, 63, 0.13);
+    }
+
+    .primary-btn {
+      width: 100%;
+      min-height: 56px;
+      border: 0;
+      border-radius: 18px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(232, 93, 63, 0.28);
+    }
+
+    .primary-btn:active {
+      transform: translateY(1px);
+      background: var(--accent-dark);
+    }
+
+    .result {
+      display: none;
+      margin-top: 14px;
+      background: #29211c;
+      color: #fff8ed;
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 12px 26px rgba(32, 26, 22, 0.22);
+    }
+
+    .result h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .score-box {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+    }
+
+    .score-box span {
+      display: block;
+      color: #d4c7b5;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .score-box b {
+      display: block;
+      font-size: 20px;
+    }
+
+    .final-score {
+      margin: 10px 0 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: #fff8ed;
+      color: var(--ink);
+      font-size: 28px;
+      font-weight: 1000;
+      text-align: center;
+    }
+
+    .summary,
+    .copy-box {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      white-space: pre-line;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .copy-box {
+      max-height: 220px;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+    }
+
+    .copy-btn {
+      width: 100%;
+      margin-top: 10px;
+      min-height: 48px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff8ed;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255, 248, 237, 0.88);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(234, 223, 206, 0.9);
+    }
+
+    .bottom-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .live-score {
+      width: 96px;
+      min-height: 54px;
+      border-radius: 18px;
+      background: #29211c;
+      color: #fff8ed;
+      display: grid;
+      place-items: center;
+      line-height: 1.05;
+      font-weight: 1000;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+
+    .live-score small {
+      display: block;
+      font-size: 11px;
+      color: #d4c7b5;
+      font-weight: 700;
+    }
+
+    .bottom-inner .primary-btn {
+      min-height: 54px;
+      border-radius: 18px;
+    }
+
+    @media (min-width: 760px) {
+      body {
+        padding-top: 24px;
+      }
+
+      .hero {
+        border-radius: 24px;
+        margin: 0 0 16px;
+        top: 12px;
+        border: 1px solid var(--line);
+      }
+
+      .score-list {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .field:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="dice" aria-hidden="true">🎲</div>
+        <div>
+          <h1>보드게임 평점 계산기</h1>
+          <p class="subtitle">모바일용 · 느낌만 고르면 자동 총평 생성</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel guide">
+      <div>📌</div>
+      <div>
+        <strong>점수 변환</strong><br />
+        매우 그렇다 10 · 그렇다 8 · 보통이다 6 · 아니다 4 · 전혀 아니다 2
+      </div>
+    </section>
+
+    <section class="panel">
+      <label for="gameName">게임명</label>
+      <input type="text" id="gameName" placeholder="예: 듄 임페리움, 아르낙, 스플렌더" />
+    </section>
+
+    <section class="score-list" aria-label="평가 항목">
+      <article class="field">
+        <div class="field-head">
+          <label for="fun">재미 / 몰입감</label>
+          <span class="score-preview" id="funPreview">10점</span>
+        </div>
+        <p class="question">플레이하는 동안 지루하지 않고 몰입이 잘 되는가?</p>
+        <select id="fun" onchange="updatePreviews()">
+          <option value="10" selected>매우 그렇다</option>
+          <option value="8">그렇다</option>
+          <option value="6">보통이다</option>
+          <option value="4">아니다</option>
+          <option value="2">전혀 아니다</option>
+        </select>
+      </article>
+
+      <article class="field">
+        <div class="field-head">
+          <label for="decision">선택의 만족감</label>
+          <span class="score-preview" id="decisionPreview">10점</span>
+        </div>
+        <p class="question">전략, 추리, 대화, 연기 등 내가 한 선택이 의미 있게 느껴지는가?</p>
+        <select id="decision" onchange="updatePreviews()">
+          <option value="10" selected>매우 그렇다</option>
+          <option value="8">그렇다</option>
+          <option value="6">보통이다</option>
+          <option value="4">아니다</option>
+          <option value="2">전혀 아니다</option>
+        </select>
+      </article>
+
+      <article class="field">
+        <div class="field-head">
+          <label for="flow">진행감 / 템포</label>
+          <span class="score-preview" id="flowPreview">10점</span>
+        </div>
+        <p class="question">게임이 늘어지지 않고 적당한 속도로 흘러가는가?</p>
+        <select id="flow" onchange="updatePreviews()">
+          <option value="10" selected>매우 그렇다</option>
+          <option value="8">그렇다</option>
+          <option value="6">보통이다</option>
+          <option value="4">아니다</option>
+          <option value="2">전혀 아니다</option>
+        </select>
+      </article>
+
+      <article class="field">
+        <div class="field-head">
+          <label for="interaction">상호작용 / 분위기</label>
+          <span class="score-preview" id="interactionPreview">10점</span>
+        </div>
+        <p class="question">대화, 견제, 협력, 웃음, 긴장감이 잘 살아나는가?</p>
+        <select id="interaction" onchange="updatePreviews()">
+          <option value="10" selected>매우 그렇다</option>
+          <option value="8">그렇다</option>
+          <option value="6">보통이다</option>
+          <option value="4">아니다</option>
+          <option value="2">전혀 아니다</option>
+        </select>
+      </article>
+
+      <article class="field">
+        <div class="field-head">
+          <label for="theme">테마 몰입도</label>
+          <span class="score-preview" id="themePreview">10점</span>
+        </div>
+        <p class="question">콘셉트, 스토리, 역할, 분위기가 플레이 중 잘 느껴지는가?</p>
+        <select id="theme" onchange="updatePreviews()">
+          <option value="10" selected>매우 그렇다</option>
+          <option value="8">그렇다</option>
+          <option value="6">보통이다</option>
+          <option value="4">아니다</option>
+          <option value="2">전혀 아니다</option>
+        </select>
+      </article>
+
+      <article class="field">
+        <div class="field-head">
+          <label for="fairness">납득감 / 공정성</label>
+          <span class="score-preview" id="fairnessPreview">8점</span>
+        </div>
+        <p class="question">운, 밸런스, 정보 차이, 탈락 등이 있어도 결과가 납득되는가?</p>
+        <select id="fairness" onchange="updatePreviews()">
+          <option value="10">매우 그렇다</option>
+          <option value="8" selected>그렇다</option>
+          <option value="6">보통이다</option>
+          <option value="4">아니다</option>
+          <option value="2">전혀 아니다</option>
+        </select>
+      </article>
+
+      <article class="field">
+        <div class="field-head">
+          <label for="replay">재플레이 욕구</label>
+          <span class="score-preview" id="replayPreview">8점</span>
+        </div>
+        <p class="question">다시 하거나, 다른 사람에게 소개하거나, 비슷한 경험을 또 하고 싶은가?</p>
+        <select id="replay" onchange="updatePreviews()">
+          <option value="10">매우 그렇다</option>
+          <option value="8" selected>그렇다</option>
+          <option value="6">보통이다</option>
+          <option value="4">아니다</option>
+          <option value="2">전혀 아니다</option>
+        </select>
+      </article>
+    </section>
+
+    <section class="result" id="result">
+      <h2>평가 결과</h2>
+      <div class="score-row">
+        <div class="score-box"><span>총합</span><b id="totalScore">-</b></div>
+        <div class="score-box"><span>평균</span><b id="averageScore">-</b></div>
+      </div>
+      <div class="final-score" id="finalScore">최종 평점 -점</div>
+      <div class="summary" id="summaryText"></div>
+      <div class="copy-box" id="copyText"></div>
+      <button class="copy-btn" onclick="copyReview()">평가 내용 복사하기</button>
+    </section>
+  </main>
+
+  <nav class="bottom-bar" aria-label="계산 바로가기">
+    <div class="bottom-inner">
+      <div class="live-score"><span id="liveScore">9</span><small>현재평균</small></div>
+      <button class="primary-btn" onclick="calculateScore(true)">평점 계산하기</button>
+    </div>
+  </nav>
+
+  <script>
+    const labels = {
+      10: "매우 그렇다",
+      8: "그렇다",
+      6: "보통이다",
+      4: "아니다",
+      2: "전혀 아니다"
+    };
+
+    const fields = [
+      "fun",
+      "decision",
+      "flow",
+      "interaction",
+      "theme",
+      "fairness",
+      "replay"
+    ];
+
+    function getScore(id) {
+      return Number(document.getElementById(id).value);
+    }
+
+    function getLabel(id) {
+      return labels[getScore(id)];
+    }
+
+    function getScores() {
+      return {
+        fun: getScore("fun"),
+        decision: getScore("decision"),
+        flow: getScore("flow"),
+        interaction: getScore("interaction"),
+        theme: getScore("theme"),
+        fairness: getScore("fairness"),
+        replay: getScore("replay")
+      };
+    }
+
+    function getAverage(scores) {
+      const total = Object.values(scores).reduce((sum, score) => sum + score, 0);
+      return { total, avg: total / fields.length };
+    }
+
+    function updatePreviews() {
+      fields.forEach((id) => {
+        document.getElementById(`${id}Preview`).textContent = `${getScore(id)}점`;
+      });
+
+      const { avg } = getAverage(getScores());
+      document.getElementById("liveScore").textContent = avg.toFixed(1);
+    }
+
+    function getGradeText(avg) {
+      if (avg >= 9) return "인생게임급. 장르와 상관없이 강하게 추천하고 싶은 게임.";
+      if (avg >= 8) return "내 취향에 잘 맞는 수작. 다시 하고 싶거나 소개하고 싶은 게임.";
+      if (avg >= 7) return "괜찮은 게임. 멤버와 상황이 맞으면 즐겁게 할 만함.";
+      if (avg >= 6) return "나쁘진 않지만 살짝 애매함. 장르나 멤버를 조금 탐.";
+      if (avg >= 5) return "보통 수준. 특별한 이유가 없으면 다시 꺼내진 않을 수 있음.";
+      return "내 취향과는 거리가 큼.";
+    }
+
+    function getShortReview(scores, avg) {
+      const strongPoints = [];
+      const weakPoints = [];
+
+      if (scores.fun >= 8) strongPoints.push("재미/몰입감");
+      if (scores.decision >= 8) strongPoints.push("선택의 만족감");
+      if (scores.flow >= 8) strongPoints.push("진행감/템포");
+      if (scores.interaction >= 8) strongPoints.push("상호작용/분위기");
+      if (scores.theme >= 8) strongPoints.push("테마 몰입도");
+      if (scores.fairness >= 8) strongPoints.push("납득감/공정성");
+      if (scores.replay >= 8) strongPoints.push("재플레이 욕구");
+
+      if (scores.fairness <= 6) weakPoints.push("납득감/공정성");
+      if (scores.flow <= 6) weakPoints.push("템포");
+      if (scores.interaction <= 6) weakPoints.push("상호작용");
+      if (scores.theme <= 6) weakPoints.push("테마 몰입도");
+      if (scores.replay <= 6) weakPoints.push("재플레이 욕구");
+
+      let review = getGradeText(avg) + "\n\n";
+
+      if (strongPoints.length > 0) {
+        review += `좋았던 부분은 ${strongPoints.join(", ")} 쪽. `;
+      }
+
+      if (weakPoints.length > 0) {
+        review += `다만 ${weakPoints.join(", ")}은 사람이나 상황에 따라 감점될 수 있음.`;
+      } else {
+        review += "큰 약점 없이 전체적으로 안정적인 평가.";
+      }
+
+      return review;
+    }
+
+    function calculateScore(scrollToResult = false) {
+      const gameName = document.getElementById("gameName").value.trim() || "미입력 게임";
+      const scores = getScores();
+      const { total, avg } = getAverage(scores);
+      const finalScore = Math.round(avg);
+      const review = getShortReview(scores, avg);
+
+      document.getElementById("result").style.display = "block";
+      document.getElementById("totalScore").textContent = `${total.toFixed(1)} / 70`;
+      document.getElementById("averageScore").textContent = `${avg.toFixed(2)} / 10`;
+      document.getElementById("finalScore").textContent = `최종 추천 평점 ${finalScore}점`;
+      document.getElementById("summaryText").textContent = review;
+
+      document.getElementById("copyText").textContent =
+`${gameName} 평가
+
+재미/몰입감: ${getLabel("fun")} (${scores.fun}/10)
+선택의 만족감: ${getLabel("decision")} (${scores.decision}/10)
+진행감/템포: ${getLabel("flow")} (${scores.flow}/10)
+상호작용/분위기: ${getLabel("interaction")} (${scores.interaction}/10)
+테마 몰입도: ${getLabel("theme")} (${scores.theme}/10)
+납득감/공정성: ${getLabel("fairness")} (${scores.fairness}/10)
+재플레이 욕구: ${getLabel("replay")} (${scores.replay}/10)
+
+총합: ${total.toFixed(1)} / 70
+평균: ${avg.toFixed(2)} / 10
+최종 추천 평점: ${finalScore}점
+
+총평: ${review}`;
+
+      if (scrollToResult) {
+        document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    async function copyReview() {
+      const text = document.getElementById("copyText").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("평가 내용을 복사했어.");
+      } catch (error) {
+        alert("복사가 안 되면 아래 박스 내용을 길게 눌러 직접 복사해줘.");
+      }
+    }
+
+    updatePreviews();
+    calculateScore(false);
+  </script>
+</body>
+</html>
